@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <h1>Methane all country value for one year</h1>
+    <style>
+        .arc text {
+            font: 10px Times New Roman;
+            text-anchor: start;
+        }
+
+        .arc path {
+            stroke: rgb(255, 255, 255);
+        }
+
+        .title {
+            fill: rgb(0, 0, 0);
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+
+<body>
+
+    <!-- pie chart -->
+    <div>
+        <svg width="700" height="700" style="margin-left: 5%;"></svg>
+        <script>
+            
+            var svg = d3.select("svg"),
+                width = svg.attr("width"),
+                height = svg.attr("height"),
+                radius = Math.min(width, height) / 2;
+
+            var g = svg.append("g")
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+            var color = d3.scaleOrdinal(['#FFA07A', '#CD5C5C',' #BDB76B','#98AFC7','#FFDAB9','#FFA500','#BDB76B','#FF1493',
+                                '#FFE4B5','#F75D59','#228B22','#F8B88B','#FA8072',
+                                '#00FF7F',' #1E90FF','#6960EC','#B666D2','#C6AEC7',
+                                '#FFA07A','#CCCCFF','#9172EC','#FA8072','#C25283',
+                                '#F8B88B','#FFE4C4','#A0522D','#E78A61','#FA8072',
+                                '#BAB86C','#FA8072','#E9967A','#00FF7F','#3B9C9C',
+                                '#F0FFFF','#4169E1','#FFFFF0','#FFE4C4','#DC143C']);
+
+            var pie = d3.pie().value(function (d) {
+                return d.Value;
+            });
+
+            var path = d3.arc()
+                .outerRadius(radius - 10)
+                .innerRadius(0);
+
+            var label = d3.arc()
+                .outerRadius(radius)
+                .innerRadius(radius - 80);
+
+            d3.csv("pie.csv", function (error, data) {
+                if (error) {
+                    throw error;
+                }
+                var arc = g.selectAll(".arc")
+                    .data(pie(data))
+                    .enter().append("g")
+                    .attr("class", "arc");
+
+                arc.append("path")
+                    .attr("d", path)
+                    .attr("fill", function (d) { return color(d.data.Country); });
+
+                console.log(arc)
+
+                arc.append("text")
+                    .attr("transform", function (d) {
+                        var midAngle = d.endAngle < Math.PI ? d.startAngle/2 + d.endAngle/2 : d.startAngle/2  + d.endAngle/2 + Math.PI ;
+	  	                return "translate(" + label.centroid(d)[0] + "," + label.centroid(d)[1] + ") rotate(-90) rotate(" + (midAngle * 180/Math.PI) + ")";
+                    })
+                    .text(function (d) { return d.data.Country; });
+            });
+
+            svg.append("g")
+                .attr("transform", "translate(" + (width / 2 - 120) + "," + 20 + ")")
+                .append("text")
+                .attr("class", "title")
+               
+        </script>
+    </div>
+</body>
+
+</html>

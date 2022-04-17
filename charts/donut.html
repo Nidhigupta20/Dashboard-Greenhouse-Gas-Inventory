@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <h1>NF3 all country value for one year</h1>
+    <style>
+        .arc text {
+            font: 11.5px Times New Roman;
+            text-anchor: start;
+        }
+
+        .arc path {
+            stroke: rgb(255, 255, 255);
+        }
+
+        .title {
+            fill: rgb(0, 0, 0);
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+
+<body>
+
+    <div>
+        <svg width="400" height="400" style="margin-left: 5%;"></svg>
+        <script>
+            
+            var svg = d3.select("svg"),
+                width = svg.attr("width"),
+                height = svg.attr("height"),
+                radius = Math.min(width, height) / 2;
+
+            var g = svg.append("g")
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+            var color = d3.scaleOrdinal(['#FFA07A','#F4A460','#808000','#F75D59','#FF0000','#F08080','#DC143C']);
+
+            var pie = d3.pie().value(function (d) {
+                return d.Value;
+            });
+
+            var path = d3.arc()
+                .outerRadius(radius)
+                .innerRadius(70);
+
+            var label = d3.arc()
+                .outerRadius(radius + 10)
+                .innerRadius(radius - 40);
+
+            d3.csv("donut1.csv", function (error, data) {
+                if (error) {
+                    throw error;
+                }
+                var arc = g.selectAll(".arc")
+                    .data(pie(data))
+                    .enter().append("g")
+                    .attr("class", "arc");
+
+                arc.append("path")
+                    .attr("d", path)
+                    .attr("fill", function (d) { return color(d.data.Country); });
+
+                console.log(arc)
+
+                arc.append("text")
+                    .attr("transform", function (d) {
+                        var midAngle = d.endAngle < Math.PI ? d.startAngle/2 + d.endAngle/2 : d.startAngle/2  + d.endAngle/2 + Math.PI ;
+	  	                return "translate(" + label.centroid(d)[0] + "," + label.centroid(d)[1] + ") rotate(-90) rotate(" + (midAngle * 180/Math.PI) + ")";
+                    })
+                    .text(function (d) { return d.data.Country; });
+            });
+
+            svg.append("g")
+                .attr("transform", "translate(" + (width / 2 - 120) + "," + 20 + ")")
+                .append("text")
+                .attr("class", "title")
+                //.text("Rural-Uraban Literacy rate 2011")
+        </script>
+    </div>
+</body>
+
+</html>
